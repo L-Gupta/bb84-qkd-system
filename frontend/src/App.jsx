@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { AlertCircle, Lock, Radio, Shield, Zap, Loader2, Cpu } from 'lucide-react';
+import { AlertCircle, Lock, Radio, Shield, Zap, Loader2 } from 'lucide-react';
 import api from './services/api';
 
 export default function App() {
   const [keyLength, setKeyLength] = useState(256);
   const [withEve, setWithEve] = useState(false);
   const [eveRate, setEveRate] = useState(0.5);
-  const [useQiskit, setUseQiskit] = useState(false);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -23,10 +22,8 @@ export default function App() {
         transmission_multiplier: 4
       };
 
-      // Use Qiskit or custom implementation
-      const data = useQiskit 
-        ? await api.executeProtocolQiskit(config)
-        : await api.executeProtocol(config);
+      // Use Qiskit implementation
+      const data = await api.executeProtocol(config);
       
       setResult(data);
     } catch (err) {
@@ -47,7 +44,7 @@ export default function App() {
             <h1 className="text-5xl font-bold text-white">BB84 QKD Protocol</h1>
           </div>
           <p className="text-xl text-blue-200">Quantum Key Distribution Simulator</p>
-          <p className="text-sm text-blue-300 mt-2">Bennett & Brassard (1984)</p>
+          <p className="text-sm text-blue-300 mt-2">Bennett & Brassard (1984) • Powered by Qiskit</p>
         </div>
 
         {/* Controls */}
@@ -57,7 +54,7 @@ export default function App() {
             Protocol Configuration
           </h2>
           
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 gap-6">
             <div>
               <label className="block text-white mb-2 font-semibold">Key Length (bits)</label>
               <input
@@ -86,24 +83,24 @@ export default function App() {
                 <span className="text-white">Enable Interception</span>
               </label>
             </div>
-            
-            {withEve && (
-              <div>
-                <label className="block text-white mb-2 font-semibold">
-                  Interception Rate: {(eveRate * 100).toFixed(0)}%
-                </label>
-                <input
-                  type="range"
-                  value={eveRate}
-                  onChange={(e) => setEveRate(parseFloat(e.target.value))}
-                  className="w-full"
-                  min="0"
-                  max="1"
-                  step="0.1"
-                />
-              </div>
-            )}
           </div>
+          
+          {withEve && (
+            <div className="mt-4">
+              <label className="block text-white mb-2 font-semibold">
+                Interception Rate: {(eveRate * 100).toFixed(0)}%
+              </label>
+              <input
+                type="range"
+                value={eveRate}
+                onChange={(e) => setEveRate(parseFloat(e.target.value))}
+                className="w-full"
+                min="0"
+                max="1"
+                step="0.1"
+              />
+            </div>
+          )}
           
           <button
             onClick={runProtocol}
@@ -219,6 +216,9 @@ export default function App() {
                   <div className="text-teal-300 text-sm mb-1">Execution Time</div>
                   <div className="text-white text-2xl font-bold">{result.execution_time_ms.toFixed(1)}ms</div>
                 </div>
+              </div>
+              <div className="mt-3 text-center">
+                <span className="text-cyan-400 font-semibold">⚛️ Powered by Qiskit Quantum Circuits</span>
               </div>
             </div>
 

@@ -10,7 +10,6 @@ from datetime import datetime
 import time
 from typing import List
 
-from core.bb84 import BB84Protocol
 from core import QISKIT_AVAILABLE, QiskitBB84Protocol
 from utils.key_utils import bits_to_hex, bits_to_base64, validate_key_quality
 from utils.statistics import (
@@ -44,12 +43,12 @@ router = APIRouter(prefix="/api", tags=["BB84 Protocol"])
     "/protocol/execute",
     response_model=ProtocolResponse,
     status_code=status.HTTP_200_OK,
-    summary="Execute BB84 Protocol",
-    description="Execute the complete BB84 quantum key distribution protocol"
+    summary="Execute BB84 Protocol (Qiskit)",
+    description="Execute BB84 using Qiskit quantum circuits"
 )
 async def execute_protocol(request: ProtocolRequest):
     """
-    Execute BB84 protocol with given parameters.
+    Execute BB84 protocol using Qiskit quantum circuits.
     
     Returns complete protocol results including:
     - Final shared key
@@ -57,11 +56,17 @@ async def execute_protocol(request: ProtocolRequest):
     - Security metrics (QBER)
     - Performance analysis
     """
+    if not QISKIT_AVAILABLE:
+        raise HTTPException(
+            status_code=status.HTTP_501_NOT_IMPLEMENTED,
+            detail="Qiskit is not installed. Install with: pip install qiskit qiskit-aer"
+        )
+    
     try:
         start_time = time.time()
         
-        # Create and execute protocol
-        protocol = BB84Protocol(
+        # Use Qiskit implementation
+        protocol = QiskitBB84Protocol(
             key_length=request.key_length,
             transmission_multiplier=request.transmission_multiplier
         )
@@ -104,7 +109,7 @@ async def execute_protocol(request: ProtocolRequest):
             eavesdropper=EavesdropperStats(**result.eavesdropper_stats) if result.eavesdropper_stats else None,
             execution_time_ms=(time.time() - start_time) * 1000,
             timestamp=datetime.utcnow(),
-            protocol_version="BB84-1.0"
+            protocol_version="BB84-Qiskit"
         )
         
         return response
@@ -112,7 +117,7 @@ async def execute_protocol(request: ProtocolRequest):
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Protocol execution failed: {str(e)}"
+            detail=f"Qiskit protocol execution failed: {str(e)}"
         )
 
 
@@ -283,5 +288,6 @@ async def health_check():
     return {
         "status": "healthy",
         "timestamp": datetime.utcnow(),
-        "version": "1.0.0"
+        "version": "1.0.0",
+        "qiskit_available": QISKIT_AVAILABLE
     }
