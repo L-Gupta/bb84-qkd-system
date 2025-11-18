@@ -11,6 +11,7 @@ import time
 from typing import List
 
 from core.bb84 import BB84Protocol
+from core import QISKIT_AVAILABLE, QiskitBB84Protocol
 from utils.key_utils import bits_to_hex, bits_to_base64, validate_key_quality
 from utils.statistics import (
     generate_statistics_summary,
