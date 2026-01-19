@@ -10,7 +10,7 @@ from datetime import datetime
 import time
 from typing import List
 
-from core import QISKIT_AVAILABLE, QiskitBB84Protocol
+from core import QISKIT_AVAILABLE, QiskitBB84Protocol, BB84Protocol
 from utils.key_utils import bits_to_hex, bits_to_base64, validate_key_quality
 from utils.statistics import (
     generate_statistics_summary,
@@ -43,12 +43,14 @@ router = APIRouter(prefix="/api", tags=["BB84 Protocol"])
     "/protocol/execute",
     response_model=ProtocolResponse,
     status_code=status.HTTP_200_OK,
-    summary="Execute BB84 Protocol (Qiskit)",
-    description="Execute BB84 using Qiskit quantum circuits"
+    summary="Execute BB84 Protocol",
+    description="Execute BB84 using available implementation (Qiskit or Python)"
 )
 async def execute_protocol(request: ProtocolRequest):
     """
-    Execute BB84 protocol using Qiskit quantum circuits.
+    Execute BB84 protocol using available implementation.
+    
+    Prefers Qiskit if available, falls back to pure Python implementation.
     
     Returns complete protocol results including:
     - Final shared key
@@ -56,20 +58,23 @@ async def execute_protocol(request: ProtocolRequest):
     - Security metrics (QBER)
     - Performance analysis
     """
-    if not QISKIT_AVAILABLE:
-        raise HTTPException(
-            status_code=status.HTTP_501_NOT_IMPLEMENTED,
-            detail="Qiskit is not installed. Install with: pip install qiskit qiskit-aer"
-        )
     
     try:
         start_time = time.time()
         
-        # Use Qiskit implementation
-        protocol = QiskitBB84Protocol(
-            key_length=request.key_length,
-            transmission_multiplier=request.transmission_multiplier
-        )
+        # Use Qiskit if available, otherwise use pure Python implementation
+        if QISKIT_AVAILABLE:
+            protocol = QiskitBB84Protocol(
+                key_length=request.key_length,
+                transmission_multiplier=request.transmission_multiplier
+            )
+            protocol_version = "BB84-Qiskit"
+        else:
+            protocol = BB84Protocol(
+                key_length=request.key_length,
+                transmission_multiplier=request.transmission_multiplier
+            )
+            protocol_version = "BB84-Python"
         
         result = protocol.execute(
             with_eavesdropper=request.with_eavesdropper,
@@ -109,7 +114,7 @@ async def execute_protocol(request: ProtocolRequest):
             eavesdropper=EavesdropperStats(**result.eavesdropper_stats) if result.eavesdropper_stats else None,
             execution_time_ms=(time.time() - start_time) * 1000,
             timestamp=datetime.utcnow(),
-            protocol_version="BB84-Qiskit"
+            protocol_version=protocol_version
         )
         
         return response
@@ -117,7 +122,7 @@ async def execute_protocol(request: ProtocolRequest):
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Qiskit protocol execution failed: {str(e)}"
+            detail=f"Protocol execution failed: {str(e)}"
         )
 
 
