@@ -24,6 +24,6 @@ export default function Dashboard({ result }) {
       <div className="mt-3 text-center">
         <span className="text-cyan-400 font-semibold">⚛️ Powered by Qiskit Quantum Circuits</span>
       </div>
-          </div>
+    </div>
   );
 }
