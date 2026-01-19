@@ -6,8 +6,10 @@
 
 import axios from 'axios';
 
-// Base URL for API
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+// Base URL for API - try /api proxy first, then full URL
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+
+console.log('API Base URL:', API_BASE_URL);
 
 // Create axios instance with default config
 const apiClient = axios.create({
@@ -18,8 +20,39 @@ const apiClient = axios.create({
   timeout: 30000, // 30 second timeout
 });
 
+// Add response interceptor for better error handling
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response) {
+      // Server responded with error status
+      console.error('API Error:', error.response.status, error.response.data);
+    } else if (error.request) {
+      // Request made but no response
+      console.error('No response from server:', error.request);
+    } else {
+      console.error('Error setting up request:', error.message);
+    }
+    return Promise.reject(error);
+  }
+);
+
 // API service object
 const api = {
+  /**
+   * Check if backend is accessible
+   * @returns {Promise} Health status
+   */
+  healthCheck: async () => {
+    try {
+      const response = await apiClient.get('/health');
+      return response.data;
+    } catch (error) {
+      console.error('Health check failed:', error);
+      throw error;
+    }
+  },
+
   /**
    * Execute BB84 protocol (custom implementation)
    * @param {Object} config - Protocol configuration
