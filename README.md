@@ -24,10 +24,10 @@ bb84-qkd-system/
 │   ├── src/
 │   │   ├── components/    # React components
 │   │   ├── services/      # API clients
-│   │   └── hooks/         # Custom hooks
 │   └── package.json
 │
-├── docs/                   # Documentation
+├── docs/                  # Documentation
+|   ├── FRONTEND.md        # Frontend explaination
 │   ├── API.md             # API documentation
 │   ├── PROTOCOL.md        # BB84 explanation
 │   └── DEPLOYMENT.md      # Deployment guide
