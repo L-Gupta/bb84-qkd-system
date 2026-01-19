@@ -1,4 +1,6 @@
 export default function Statistics({ transmission }) {
+  if (!transmission) return null;
+
   return (
     <div className="card">
       <h2 className="card-title">Protocol Statistics</h2>

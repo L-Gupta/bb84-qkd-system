@@ -1,4 +1,6 @@
 export default function Dashboard({ performance, information, executionTime }) {
+  if (!performance || !information) return null;
+
   return (
     <div className="card">
       <h2 className="card-title">Performance Metrics</h2>
