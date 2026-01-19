@@ -1,9 +1,5 @@
-<<<<<<< HEAD
-import { Lock, Radio, Zap, Loader2 } from 'lucide-react';
-=======
 import React from 'react';
-import { Radio, Zap, Lock, Loader2, AlertCircle } from 'lucide-react';
->>>>>>> fix
+import { Radio, Zap, Lock, Loader2 } from 'lucide-react';
 
 export default function Controls({
   keyLength,
@@ -13,38 +9,9 @@ export default function Controls({
   eveRate,
   setEveRate,
   loading,
-<<<<<<< HEAD
-  onRun
-}) {
-  return (
-    <div className="card">
-      <h2 className="card-title">
-        <Zap /> Protocol Configuration
-      </h2>
-
-      <div className="grid-2">
-        <div className="form-group">
-          <label className="form-label">Key Length (bits)</label>
-          <input
-            type="number"
-            className="form-input"
-            min="64"
-            max="512"
-            step="64"
-            value={keyLength}
-            onChange={(e) => setKeyLength(Number(e.target.value))}
-          />
-        </div>
-
-        <div className="form-group">
-          <label className="form-label">
-            <Radio /> Eavesdropper (Eve)
-          </label>
-          <label className="checkbox-group">
-=======
   onRunProtocol,
   error,
-  backendReady = true
+  backendReady
 }) {
   return (
     <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 mb-6 border border-white/20">
@@ -52,15 +19,6 @@ export default function Controls({
         <Zap className="w-6 h-6 text-yellow-400" />
         Protocol Configuration
       </h2>
-      
-      {!backendReady && (
-        <div className="mb-4 bg-yellow-500/20 border border-yellow-400/30 rounded-lg p-3 flex items-start gap-2">
-          <AlertCircle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
-          <div className="text-yellow-300 text-sm">
-            <strong>Backend Connecting...</strong> The server appears to be starting. Please wait a moment and refresh the page.
-          </div>
-        </div>
-      )}
       
       <div className="grid md:grid-cols-2 gap-6">
         <div>
@@ -73,6 +31,7 @@ export default function Controls({
             min="64"
             max="512"
             step="64"
+            disabled={!backendReady}
           />
         </div>
         
@@ -82,23 +41,12 @@ export default function Controls({
             Eavesdropper (Eve)
           </label>
           <label className="flex items-center gap-3 cursor-pointer">
->>>>>>> fix
             <input
               type="checkbox"
               checked={withEve}
               onChange={(e) => setWithEve(e.target.checked)}
-<<<<<<< HEAD
-            />
-            Enable Interception
-          </label>
-        </div>
-      </div>
-
-      {withEve && (
-        <div className="form-group">
-          <label className="form-label">
-=======
               className="w-5 h-5"
+              disabled={!backendReady}
             />
             <span className="text-white">Enable Interception</span>
           </label>
@@ -108,40 +56,17 @@ export default function Controls({
       {withEve && (
         <div className="mt-4">
           <label className="block text-white mb-2 font-semibold">
->>>>>>> fix
             Interception Rate: {(eveRate * 100).toFixed(0)}%
           </label>
           <input
             type="range"
-<<<<<<< HEAD
-            className="slider"
-            min="0"
-            max="1"
-            step="0.1"
-            value={eveRate}
-            onChange={(e) => setEveRate(Number(e.target.value))}
-          />
-        </div>
-      )}
-
-      <button className="btn-primary" onClick={onRun} disabled={loading}>
-        {loading ? (
-          <>
-            <Loader2 className="spinner" /> Processing…
-          </>
-        ) : (
-          <>
-            <Lock /> Execute BB84 Protocol
-          </>
-        )}
-      </button>
-=======
             value={eveRate}
             onChange={(e) => setEveRate(parseFloat(e.target.value))}
             className="w-full"
             min="0"
             max="1"
             step="0.1"
+            disabled={!backendReady}
           />
         </div>
       )}
@@ -149,12 +74,17 @@ export default function Controls({
       <button
         onClick={onRunProtocol}
         disabled={loading || !backendReady}
-        className="mt-6 w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        className="mt-6 w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2"
       >
         {loading ? (
           <>
             <Loader2 className="w-5 h-5 animate-spin" />
             Processing...
+          </>
+        ) : !backendReady ? (
+          <>
+            <Loader2 className="w-5 h-5 animate-pulse" />
+            Connecting to Backend...
           </>
         ) : (
           <>
@@ -169,7 +99,6 @@ export default function Controls({
           <p className="text-red-300 font-semibold">Error: {error}</p>
         </div>
       )}
->>>>>>> fix
     </div>
   );
 }
