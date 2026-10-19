@@ -4,12 +4,21 @@ FastAPI application entry point for BB84 QKD System.
 Main application that serves the BB84 quantum key distribution API.
 """
 
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 import uvicorn
 
 from api.routes import router
+
+# Extra allowed origins (e.g. the deployed Vercel URL), comma-separated
+ALLOWED_ORIGINS = [
+    origin.strip().rstrip("/")
+    for origin in os.getenv("ALLOWED_ORIGINS", "").split(",")
+    if origin.strip()
+]
 
 # Create FastAPI app
 app = FastAPI(
@@ -58,6 +67,7 @@ app.add_middleware(
         "http://127.0.0.1:3000",
         "http://127.0.0.1:5173",
         "http://127.0.0.1:8080",
+        *ALLOWED_ORIGINS,
     ],
     allow_credentials=True,
     allow_methods=["*"],
