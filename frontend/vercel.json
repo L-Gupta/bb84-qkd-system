@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://bb84-qkd-system.onrender.com/api/:path*"
+    }
+  ]
+}
